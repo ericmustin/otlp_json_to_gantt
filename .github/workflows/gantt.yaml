@@ -1,0 +1,41 @@
+name: Generate Gantt Chart
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  generate_gantt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.16
+
+      - name: Build
+        run: go build .
+
+      - name: Generate Gantt Chart
+        run: ./yourprogram -input=./input/trace.json -output=./output/trace.md
+
+      - name: Commit files
+        uses: stefanzweifel/git-auto-commit-action@v4.3.3
+        with:
+          commit_message: "Generate Gantt chart"
+          commit_options: "--no-verify"
+          branch: ${{ github.ref }}
+          files: |
+            output/*
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
